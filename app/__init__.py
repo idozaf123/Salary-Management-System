@@ -9,7 +9,7 @@ from app.payroll_engine import PayrollEngine
 
 def create_app(db_path: str = "payroll.db"):
     """Create and configure Flask application"""
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../static', static_url_path='/static')
     app.config["SECRET_KEY"] = "dev-secret-key-change-in-production"
     app.config["DATABASE_PATH"] = db_path
 
