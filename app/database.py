@@ -21,21 +21,38 @@ class Database:
 
     def __init__(self, db_path: str = "payroll.db"):
         self.db_path = db_path
+        self._memory_conn = None  # For :memory: databases
+
+        # For in-memory databases, keep a persistent connection
+        if db_path == ":memory:":
+            self._memory_conn = sqlite3.connect(db_path)
+            self._memory_conn.row_factory = sqlite3.Row
+
         self.init_database()
 
     @contextmanager
     def get_connection(self):
         """Context manager for database connections"""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # Enable column access by name
-        try:
-            yield conn
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            conn.close()
+        # Use persistent connection for :memory: databases
+        if self._memory_conn:
+            try:
+                yield self._memory_conn
+                self._memory_conn.commit()
+            except Exception as e:
+                self._memory_conn.rollback()
+                raise e
+        else:
+            # For file-based databases, create new connection each time
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            try:
+                yield conn
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                raise e
+            finally:
+                conn.close()
 
     def init_database(self):
         """Create all tables if they don't exist"""

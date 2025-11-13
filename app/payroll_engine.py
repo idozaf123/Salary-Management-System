@@ -193,7 +193,7 @@ class PayrollEngine:
 
         # Fetch and sum bonuses
         bonuses = self.db.get_bonuses_for_period(user_id, start_date, end_date)
-        total_bonuses = sum(b.amount for b in bonuses)
+        total_bonuses = sum((b.amount for b in bonuses), Decimal("0"))
 
         # Fetch and calculate deductions
         deductions = self.db.get_active_deductions_for_user(user_id)
