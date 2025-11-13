@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Payroll Management System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-brand">
+                <h1>Payroll Management System</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                {% if user %}
+                <a href="{{ url_for('user_dashboard', user_id=user.id) }}">Dashboard</a>
+                <a href="{{ url_for('employment_profile', user_id=user.id) }}">Profile</a>
+                <a href="{{ url_for('shifts', user_id=user.id) }}">Shifts</a>
+                <a href="{{ url_for('payroll_reports', user_id=user.id) }}">Payroll</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Payroll Management System &copy; 2025 | Built for precise compensation tracking</p>
+    </footer>
+</body>
+</html>

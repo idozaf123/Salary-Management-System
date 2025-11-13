@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.full_name }} - Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ user.full_name }} - Dashboard</h2>
+
+    <div class="section">
+        <h3>Employment Profile</h3>
+        {% if profile %}
+        <table class="info-table">
+            <tr>
+                <th>Job Title:</th>
+                <td>{{ profile.job_title or 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Department:</th>
+                <td>{{ profile.department or 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Employment Type:</th>
+                <td>{{ profile.employment_type|capitalize }}</td>
+            </tr>
+            <tr>
+                <th>Base Rate:</th>
+                <td>{{ profile.currency }} {{ "{:.2f}".format(profile.base_rate|float) }}
+                    {% if profile.employment_type == 'hourly' %}/hour{% else %}/year{% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Standard Hours/Week:</th>
+                <td>{{ "{:.1f}".format(profile.standard_hours_per_week|float) }}</td>
+            </tr>
+            <tr>
+                <th>Overtime Multiplier:</th>
+                <td>{{ "{:.2f}".format(profile.overtime_multiplier|float) }}x</td>
+            </tr>
+        </table>
+        <a href="{{ url_for('employment_profile', user_id=user.id) }}" class="btn btn-secondary">Edit Profile</a>
+        {% else %}
+        <p>No employment profile set. <a href="{{ url_for('employment_profile', user_id=user.id) }}" class="btn btn-primary">Create Profile</a></p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>Payroll Summary (Last 6 Periods)</h3>
+        {% if payroll_summary.total_periods > 0 %}
+        <table class="info-table">
+            <tr>
+                <th>Total Periods:</th>
+                <td>{{ payroll_summary.total_periods }}</td>
+            </tr>
+            <tr>
+                <th>Total Gross Pay:</th>
+                <td>${{ "{:,.2f}".format(payroll_summary.total_gross_pay) }}</td>
+            </tr>
+            <tr>
+                <th>Total Net Pay:</th>
+                <td>${{ "{:,.2f}".format(payroll_summary.total_net_pay) }}</td>
+            </tr>
+            <tr>
+                <th>Average Gross Pay:</th>
+                <td>${{ "{:,.2f}".format(payroll_summary.average_gross_pay) }}</td>
+            </tr>
+            <tr>
+                <th>Total Hours:</th>
+                <td>{{ "{:.1f}".format(payroll_summary.total_hours) }} hours</td>
+            </tr>
+        </table>
+        {% else %}
+        <p>No payroll periods calculated yet.</p>
+        {% endif %}
+        <a href="{{ url_for('payroll_reports', user_id=user.id) }}" class="btn btn-secondary">View Full Payroll Reports</a>
+    </div>
+
+    <div class="section">
+        <h3>Recent Shifts</h3>
+        {% if recent_shifts %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Type</th>
+                    <th>Hours</th>
+                    <th>Rate</th>
+                    <th>Total Pay</th>
+                    <th>OT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shift in recent_shifts %}
+                <tr>
+                    <td>{{ shift.shift_date }}</td>
+                    <td>{{ shift.start_time.strftime('%H:%M') }}</td>
+                    <td>{{ shift.end_time.strftime('%H:%M') }}</td>
+                    <td>{{ shift.shift_type|capitalize }}</td>
+                    <td>{{ "{:.2f}".format(shift.hours_worked|float) if shift.hours_worked else '-' }}</td>
+                    <td>${{ "{:.2f}".format(shift.hourly_rate|float) if shift.hourly_rate else '-' }}</td>
+                    <td>${{ "{:.2f}".format(shift.total_pay|float) if shift.total_pay else '-' }}</td>
+                    <td>{% if shift.is_overtime %}Yes{% else %}No{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No shifts recorded yet.</p>
+        {% endif %}
+        <a href="{{ url_for('shifts', user_id=user.id) }}" class="btn btn-primary">Manage Shifts</a>
+    </div>
+</div>
+{% endblock %}

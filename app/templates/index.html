@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Payroll Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Dashboard</h2>
+
+    <div class="section">
+        <h3>All Users</h3>
+        {% if users %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        <a href="{{ url_for('user_dashboard', user_id=u.id) }}" class="btn btn-primary">View Dashboard</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No users found. Create users via API:</p>
+        <pre>
+POST /api/users
+{
+  "username": "jdoe",
+  "email": "jdoe@example.com",
+  "full_name": "John Doe"
+}
+        </pre>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>Quick Start Guide</h3>
+        <ol>
+            <li><strong>Create a user</strong> via POST /api/users</li>
+            <li><strong>Set up employment profile</strong> with hourly rate and shift rules</li>
+            <li><strong>Track shifts</strong> by entering work hours</li>
+            <li><strong>View payroll</strong> calculations and reports</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h3>API Endpoints</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/users</td>
+                    <td>Create new user</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/api/user/{id}</td>
+                    <td>Get user details</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/user/{id}/profile</td>
+                    <td>Create employment profile</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/user/{id}/shifts</td>
+                    <td>Add work shift</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/user/{id}/payroll/calculate</td>
+                    <td>Calculate payroll for period</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/api/user/{id}/payroll/summary</td>
+                    <td>Get payroll summary</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

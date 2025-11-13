@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Work Shifts - {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Work Shifts - {{ user.full_name }}</h2>
+
+    <div class="section">
+        <h3>Add New Shift</h3>
+        {% if profile %}
+        <form method="POST" class="form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="shift_date">Date:</label>
+                    <input type="date" id="shift_date" name="shift_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="start_time">Start Time:</label>
+                    <input type="time" id="start_time" name="start_time" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_time">End Time:</label>
+                    <input type="time" id="end_time" name="end_time" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="shift_type">Shift Type:</label>
+                    <select id="shift_type" name="shift_type">
+                        <option value="regular">Regular</option>
+                        <option value="night">Night Shift</option>
+                        <option value="weekend">Weekend</option>
+                        <option value="holiday">Holiday</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes (optional):</label>
+                    <input type="text" id="notes" name="notes">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Shift</button>
+        </form>
+        {% else %}
+        <p>Please <a href="{{ url_for('employment_profile', user_id=user.id) }}">create an employment profile</a> first.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>All Shifts</h3>
+        {% if shifts %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Type</th>
+                    <th>Hours</th>
+                    <th>Rate</th>
+                    <th>Total Pay</th>
+                    <th>Overtime</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shift in shifts %}
+                <tr>
+                    <td>{{ shift.shift_date }}</td>
+                    <td>{{ shift.start_time.strftime('%H:%M') }}</td>
+                    <td>{{ shift.end_time.strftime('%H:%M') }}</td>
+                    <td>{{ shift.shift_type|capitalize }}</td>
+                    <td>{{ "{:.2f}".format(shift.hours_worked|float) if shift.hours_worked else '-' }}</td>
+                    <td>${{ "{:.2f}".format(shift.hourly_rate|float) if shift.hourly_rate else '-' }}</td>
+                    <td>${{ "{:.2f}".format(shift.total_pay|float) if shift.total_pay else '-' }}</td>
+                    <td>{% if shift.is_overtime %}<span class="badge-ot">Yes</span>{% else %}No{% endif %}</td>
+                    <td>{{ shift.notes }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="summary">
+            <h4>Summary</h4>
+            <p>Total shifts: {{ shifts|length }}</p>
+            <p>Total hours: {{ "{:.2f}".format(shifts|sum(attribute='hours_worked')|float) if shifts[0].hours_worked else 'N/A' }}</p>
+            <p>Total pay: ${{ "{:.2f}".format(shifts|sum(attribute='total_pay')|float) if shifts[0].total_pay else 'N/A' }}</p>
+        </div>
+        {% else %}
+        <p>No shifts recorded yet. Add your first shift above.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+# Payroll Management System - Python Dependencies
+
+# Web Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Database
+# SQLite is included in Python standard library
+
+# Utilities
+python-dateutil==2.8.2
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0

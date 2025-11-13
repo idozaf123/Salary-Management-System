@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Payroll Reports - {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Payroll Reports - {{ user.full_name }}</h2>
+
+    <div class="section">
+        <h3>Active Deductions</h3>
+        {% if deductions %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Applies to OT</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in deductions %}
+                <tr>
+                    <td>{{ d.deduction_type|capitalize }}</td>
+                    <td>{{ d.name }}</td>
+                    <td>{% if d.is_percentage %}{{ "{:.1f}".format(d.amount|float) }}%{% else %} ${{ "{:.2f}".format(d.amount|float) }}{% endif %}</td>
+                    <td>{% if d.applies_to_overtime %}Yes{% else %}No{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No deductions configured. Add deductions via API.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h3>Payroll Periods</h3>
+        {% if periods %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Period Start</th>
+                    <th>Period End</th>
+                    <th>Regular Hours</th>
+                    <th>OT Hours</th>
+                    <th>Gross Pay</th>
+                    <th>Bonuses</th>
+                    <th>Deductions</th>
+                    <th>Net Pay</th>
+                    <th>Shifts</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in periods %}
+                <tr>
+                    <td>{{ p.period_start }}</td>
+                    <td>{{ p.period_end }}</td>
+                    <td>{{ "{:.2f}".format(p.total_hours_regular|float) }}</td>
+                    <td>{{ "{:.2f}".format(p.total_hours_overtime|float) }}</td>
+                    <td>${{ "{:,.2f}".format(p.gross_pay_total|float) }}</td>
+                    <td>${{ "{:,.2f}".format(p.total_bonuses|float) }}</td>
+                    <td>${{ "{:,.2f}".format(p.total_deductions|float) }}</td>
+                    <td><strong>${{ "{:,.2f}".format(p.net_pay|float) }}</strong></td>
+                    <td>{{ p.shift_count }}</td>
+                    <td>{% if p.is_finalized %}<span class="badge-finalized">Finalized</span>{% else %}<span class="badge-draft">Draft</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="summary">
+            <h4>Overall Summary</h4>
+            {% set total_gross = periods|sum(attribute='gross_pay_total') %}
+            {% set total_net = periods|sum(attribute='net_pay') %}
+            {% set total_hours = periods|sum(attribute='total_hours_regular') + periods|sum(attribute='total_hours_overtime') %}
+            <p>Total Gross Pay: ${{ "{:,.2f}".format(total_gross|float) }}</p>
+            <p>Total Net Pay: ${{ "{:,.2f}".format(total_net|float) }}</p>
+            <p>Total Hours: {{ "{:.2f}".format(total_hours|float) }}</p>
+        </div>
+        {% else %}
+        <p>No payroll periods calculated yet.</p>
+        <p>Calculate payroll via API:</p>
+        <pre>
+POST /api/user/{{ user.id }}/payroll/calculate
+{
+  "start_date": "2025-01-01",
+  "end_date": "2025-01-15",
+  "save": true
+}
+        </pre>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

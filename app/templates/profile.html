@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Employment Profile - {{ user.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Employment Profile - {{ user.full_name }}</h2>
+
+    {% if profile %}
+    <div class="section">
+        <h3>Current Profile</h3>
+        <table class="info-table">
+            <tr>
+                <th>Employment Type:</th>
+                <td>{{ profile.employment_type|capitalize }}</td>
+            </tr>
+            <tr>
+                <th>Base Rate:</th>
+                <td>{{ profile.currency }} {{ "{:.2f}".format(profile.base_rate|float) }}</td>
+            </tr>
+            <tr>
+                <th>Job Title:</th>
+                <td>{{ profile.job_title }}</td>
+            </tr>
+            <tr>
+                <th>Department:</th>
+                <td>{{ profile.department }}</td>
+            </tr>
+            <tr>
+                <th>Standard Hours/Week:</th>
+                <td>{{ "{:.1f}".format(profile.standard_hours_per_week|float) }}</td>
+            </tr>
+            <tr>
+                <th>Daily OT Threshold:</th>
+                <td>{{ "{:.1f}".format(profile.overtime_threshold_daily|float) }} hours</td>
+            </tr>
+            <tr>
+                <th>Weekly OT Threshold:</th>
+                <td>{{ "{:.1f}".format(profile.overtime_threshold_weekly|float) }} hours</td>
+            </tr>
+            <tr>
+                <th>Overtime Multiplier:</th>
+                <td>{{ "{:.2f}".format(profile.overtime_multiplier|float) }}x</td>
+            </tr>
+            <tr>
+                <th>Night Shift Multiplier:</th>
+                <td>{{ "{:.2f}".format(profile.night_shift_multiplier|float) }}x</td>
+            </tr>
+            <tr>
+                <th>Weekend Multiplier:</th>
+                <td>{{ "{:.2f}".format(profile.weekend_multiplier|float) }}x</td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <h3>{% if profile %}Update{% else %}Create{% endif %} Employment Profile</h3>
+        <form method="POST" class="form">
+            <div class="form-group">
+                <label for="employment_type">Employment Type:</label>
+                <select id="employment_type" name="employment_type" required>
+                    <option value="hourly" {% if profile and profile.employment_type == 'hourly' %}selected{% endif %}>Hourly</option>
+                    <option value="salaried" {% if profile and profile.employment_type == 'salaried' %}selected{% endif %}>Salaried</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="base_rate">Base Rate (hourly or annual salary):</label>
+                <input type="number" step="0.01" id="base_rate" name="base_rate"
+                       value="{{ '{:.2f}'.format(profile.base_rate|float) if profile else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="job_title">Job Title:</label>
+                <input type="text" id="job_title" name="job_title"
+                       value="{{ profile.job_title if profile else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department"
+                       value="{{ profile.department if profile else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="standard_hours_per_week">Standard Hours per Week:</label>
+                <input type="number" step="0.1" id="standard_hours_per_week" name="standard_hours_per_week"
+                       value="{{ '{:.1f}'.format(profile.standard_hours_per_week|float) if profile else '40.0' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="overtime_threshold_daily">Daily Overtime Threshold (hours):</label>
+                <input type="number" step="0.1" id="overtime_threshold_daily" name="overtime_threshold_daily"
+                       value="{{ '{:.1f}'.format(profile.overtime_threshold_daily|float) if profile else '8.0' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="overtime_threshold_weekly">Weekly Overtime Threshold (hours):</label>
+                <input type="number" step="0.1" id="overtime_threshold_weekly" name="overtime_threshold_weekly"
+                       value="{{ '{:.1f}'.format(profile.overtime_threshold_weekly|float) if profile else '40.0' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="overtime_multiplier">Overtime Multiplier:</label>
+                <input type="number" step="0.01" id="overtime_multiplier" name="overtime_multiplier"
+                       value="{{ '{:.2f}'.format(profile.overtime_multiplier|float) if profile else '1.50' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="night_shift_multiplier">Night Shift Multiplier:</label>
+                <input type="number" step="0.01" id="night_shift_multiplier" name="night_shift_multiplier"
+                       value="{{ '{:.2f}'.format(profile.night_shift_multiplier|float) if profile else '1.25' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="weekend_multiplier">Weekend Multiplier:</label>
+                <input type="number" step="0.01" id="weekend_multiplier" name="weekend_multiplier"
+                       value="{{ '{:.2f}'.format(profile.weekend_multiplier|float) if profile else '1.50' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date"
+                       value="{{ profile.start_date if profile else '' }}" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">{% if profile %}Update{% else %}Create{% endif %} Profile</button>
+            <a href="{{ url_for('user_dashboard', user_id=user.id) }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
